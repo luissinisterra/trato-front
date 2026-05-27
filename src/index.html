@@ -9,6 +9,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    // Set up environment configuration BEFORE Angular loads
+    const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+    const apiUrl = isProduction 
+      ? 'https://gateway-service-kudv.onrender.com'
+      : 'http://localhost:3000/api';
+    window.__env__ = { API_URL: apiUrl };
+  </script>
 </head>
 <body class="bg-bg-primary text-text-primary font-sans selection:bg-primary selection:text-white">
   <app-root></app-root>
