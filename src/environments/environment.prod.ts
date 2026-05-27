@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: '/api' // To be configured for prod
+  apiUrl: 'https://gateway-service-kudv.onrender.com' // To be configured for prod
 };
