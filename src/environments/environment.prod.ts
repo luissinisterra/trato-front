@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://gateway-service-kudv.onrender.com' // To be configured for prod
+  apiUrl: (typeof window !== 'undefined' && (window as any).__env__?.API_URL) || 'https://gateway-service-kudv.onrender.com'
 };
