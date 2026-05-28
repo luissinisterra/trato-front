@@ -142,9 +142,21 @@ import { forkJoin, interval, Subscription } from 'rxjs';
                   <p class="text-center text-xs text-text-muted mt-3">Paga el precio final de la subasta para cerrar la transacción.</p>
                 } @else {
                   <div class="w-full h-14 rounded-xl flex items-center justify-center font-bold border-2"
-                       [ngClass]="{'bg-bg-hover text-text-muted border-border': a.status === 'CLOSED', 'bg-warning/10 text-warning border-warning/20': a.status === 'SCHEDULED'}">
-                    {{ a.status === 'CLOSED' ? 'Subasta Cerrada' : 'Subasta Próximamente' }}
+                       [ngClass]="{'bg-bg-hover text-text-muted border-border': a.status === 'CLOSED', 'bg-warning/10 text-warning border-warning/20': a.status === 'SCHEDULED' || a.status === 'DRAFT'}">
+                    {{ a.status === 'CLOSED' ? 'Subasta Cerrada' : (a.status === 'DRAFT' ? 'Subasta en Borrador' : 'Subasta Próximamente') }}
                   </div>
+                  @if (isSeller() && a.status === 'DRAFT') {
+                    <button (click)="activateAuction()" [disabled]="isActivating()"
+                            class="w-full mt-3 h-14 rounded-xl text-lg font-bold text-white bg-success hover:bg-success/80 transition-all shadow-glow flex items-center justify-center gap-2">
+                      @if (isActivating()) {
+                        <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        Activando...
+                      } @else {
+                        Activar Subasta
+                      }
+                    </button>
+                    <p class="text-center text-xs text-text-muted mt-2">Activa la subasta para permitir que otros usuarios hagan ofertas.</p>
+                  }
                 }
               </div>
 
@@ -316,6 +328,7 @@ export class AuctionDetailComponent implements OnInit, OnDestroy {
   isPaying = signal<boolean>(false);
   isDeleteConfirmOpen = signal<boolean>(false);
   isDeleting = signal<boolean>(false);
+  isActivating = signal<boolean>(false);
 
   isSeller = computed(() => {
     const a = this.auction();
@@ -499,6 +512,24 @@ export class AuctionDetailComponent implements OnInit, OnDestroy {
     }
     this.updateBidFormMin();
     this.isBidModalOpen.set(true);
+  }
+
+  activateAuction() {
+    const a = this.auction();
+    if (!a || this.isActivating()) return;
+
+    this.isActivating.set(true);
+    this.auctionService.updateStatus(a.id, 'ACTIVE').subscribe({
+      next: (res) => {
+        this.isActivating.set(false);
+        this.toastService.success('Subasta activada exitosamente');
+        this.loadData(a.id);
+      },
+      error: () => {
+        this.isActivating.set(false);
+        this.toastService.error('Error al activar la subasta');
+      }
+    });
   }
 
   closeBidModal() {

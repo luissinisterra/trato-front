@@ -50,4 +50,8 @@ export class AuctionService {
   deleteAuction(id: number): Observable<any> {
     return this.http.delete<any>(`${environment.apiUrl}/auctions/${id}`);
   }
+
+  updateStatus(id: number, status: string): Observable<Auction> {
+    return this.http.patch<Auction>(`${environment.apiUrl}/auctions/${id}/status`, { status });
+  }
 }
